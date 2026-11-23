@@ -23,7 +23,9 @@ let sortKey = 'rank', sortDir = 1;
     `${Math.round(v.loo_within_3x * 100)}% within 3x. ` +
     `Walk-forward on the ${v.wf_n} latest listings: median predicted/actual ${v.wf_median_pred_actual.toFixed(2)}x, ` +
     `${Math.round(v.wf_within_3x * 100)}% within 3x. ` +
-    `Global market-cap/TVL median ${v.global_ratio_median}. Every value below is fitted from the snapshot — no protocol name is hardcoded.`;
+    `Global market-cap/TVL median ${v.global_ratio_median}. ` +
+    `${v.excluded_wrapped} wrapped, bridged or exchange products are excluded from the ranking — they are not pre-token launches. ` +
+    `Every value below is fitted from the snapshot — no protocol name is hardcoded.`;
   $('meta').textContent = `Snapshot ${B.as_of}\n${rows.length} rows · ${rows.filter((r) => r.is_watchlist).length} watchlist`;
 })();
 

@@ -76,10 +76,31 @@ uses the plan's own numbers:
 - FARM when net is over $100 and over $20 an hour; THIN when net is over
   $0; SKIP otherwise. The board shows $/hour and net on every row.
 
+## Wrapped, bridged and exchange products are not launches
+
+The board ranks pre-token launches only. The bounty's own watchlist rule
+keeps wrapped, staked and bridged products off the watchlist, and this
+radar applies the same rule to the whole board (`isWrappedOrBridged` in
+`lib/model.ts`): a protocol is excluded from the ranking when its category
+is Bridge, Canonical Bridge, Liquid Staking, Liquid Restaking, Restaked
+BTC or CEX, when its name carries a whole word wrapped, staked or staking,
+when it begins with an exchange's name (Binance, Coinbase, Bybit, Kraken,
+Bitget, OKX, Bitfinex, Gemini), or when its name ends in a version marker.
+Those lists are the bounty's own rule, not a list of protocol names — no
+protocol name is hardcoded anywhere in the code. The rule excludes 144 of
+the snapshot's 342 protocols that record no token: the biggest are the
+exchanges and bridges (Bybit, Bitfinex, Robinhood, WBTC, Binance staked
+ETH, Coinbase Bridge, Bitget, Binance Bitcoin, Gemini, USDT0) — each is a
+wrapped or bridged product of a token that already trades, or an exchange
+itself, so none of them is a token that has yet to launch. WBTC, Binance
+staked ETH and USDT0 are the rule's own examples, and the code counts the
+excluded rows every run (144) and shows the count on the board's strip.
+
 ## What the board covers
 
-200 rows: the whole 40-protocol watchlist, plus the 160 largest
-pre-token protocols below the $50,000,000 floor, by TVL. Protocols whose
-token already trades are not ranked — they are the training set the model
-is fitted on, and the page says so. The watchlist is the floor, never the
-ceiling.
+198 rows: the whole 40-protocol watchlist, plus the 158 largest
+pre-token protocols below the $50,000,000 floor, by TVL, after the
+exclusion above (158 is every eligible protocol below the floor — the
+exclusion leaves no more). Protocols whose token already trades are not ranked —
+they are the training set the model is fitted on, and the page says so.
+The watchlist is the floor, never the ceiling.

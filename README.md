@@ -13,10 +13,12 @@ value, each with a costed farm plan. Built for the make.fun
 `main.ts` reads the sealed snapshot (`/input/snapshot.json`: 758 protocols,
 40 watchlist, 128 traded comps) and writes the graded output:
 
-- `board.json` — the ranked board: 200 rows (the whole 40-protocol watchlist
-  plus the 160 largest pre-token protocols below the $50,000,000 floor), each
-  with a fitted market cap, token odds, implied value, a five-step farm plan
-  with its own dollar cost and minutes, and a FARM / THIN / SKIP verdict.
+- `board.json` — the ranked board: 198 rows (the whole 40-protocol watchlist
+  plus the 158 largest pre-token protocols below the $50,000,000 floor, after
+  excluding 144 wrapped/bridged/staked/CEX products by the bounty's own
+  watchlist rule), each with a fitted market cap, token odds, implied value,
+  a five-step farm plan with its own dollar cost and minutes, and a
+  FARM / THIN / SKIP verdict.
 - `data.js` — the same board as `window.BOARD` for the dashboard.
 - `dashboard/` — the board itself: a sortable, filterable table, a
   validation strip, and a detail view with a comps chart and the farm plan.

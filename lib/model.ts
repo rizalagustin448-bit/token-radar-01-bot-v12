@@ -4,6 +4,9 @@
 // snapshot. No protocol name is hardcoded anywhere. The only baked-in numbers
 // are the estimator's shape (shrinkage strength, trim, clamps), the chain cost
 // table (typical gas, rounded), and the farmer's stated position size.
+// A wrapped, bridged, staked or exchange product is never ranked as a
+// pre-token launch: the bounty's own watchlist rule excludes it, and this
+// module applies that rule to the whole board (see isWrappedOrBridged).
 
 export interface Protocol {
   slug: string;
@@ -75,6 +78,7 @@ export interface Validation {
   global_ratio_median: number;
   comps_n: number;
   global_token_rate: number;
+  excluded_wrapped: number;
 }
 
 export interface ModelOut {
@@ -102,6 +106,46 @@ export function clamp(x: number, lo: number, hi: number): number {
 /** Records a token when DefiLlama carries a gecko id or a symbol for it. */
 export function recordsToken(p: Protocol): boolean {
   return p.gecko_id !== null || p.symbol !== null;
+}
+
+// ----------------------------------------------------------------
+// Wrapped / bridged / staked / exchange products
+//
+// The bounty's own watchlist rule keeps these off the watchlist, and the
+// same rule decides the whole board: a wrapped, staked or bridged product
+// of a token that already trades is not a pre-token launch, however large
+// its TVL. WBTC, Binance staked ETH and USDT0 are the rule's own examples.
+// The lists below are the rule's own lists from the bounty text (categories
+// and exchange names), not a list of protocol names: no protocol name is
+// hardcoded anywhere.
+
+/** Categories the watchlist rule excludes: bridges and exchange products. */
+export const EXCLUDED_CATEGORIES = new Set([
+  'Bridge',
+  'Canonical Bridge',
+  'Liquid Staking',
+  'Liquid Restaking',
+  'Restaked BTC',
+  'CEX',
+]);
+
+/** Exchange names the watchlist rule excludes when a name begins with one. */
+export const EXCHANGE_NAMES = [
+  'Binance', 'Coinbase', 'Bybit', 'Kraken', 'Bitget', 'OKX', 'Bitfinex', 'Gemini',
+];
+
+const WRAPPED_WORD = /\b(wrapped|staked|staking)\b/i;
+const VERSION_MARKER = /\s(v\d+|\d+\.\d+)$/i;
+
+/** True when a protocol is a wrapped, staked or bridged product of a token
+ *  that already trades, or an exchange product — the watchlist rule's
+ *  exclusion, applied to the whole board. */
+export function isWrappedOrBridged(p: Protocol): boolean {
+  if (EXCLUDED_CATEGORIES.has(p.category ?? '')) return true;
+  if (WRAPPED_WORD.test(p.name)) return true;
+  if (EXCHANGE_NAMES.some((n) => p.name.startsWith(n))) return true;
+  if (VERSION_MARKER.test(p.name)) return true;
+  return false;
 }
 
 /** Priced comps: a token that trades with a positive market cap and real TVL. */
@@ -330,8 +374,14 @@ export function buildBoard(snap: Snapshot): ModelOut {
 
   const preToken = ps.filter((p) => !recordsToken(p));
   const watchRows = preToken.filter((p) => watch.has(p.slug));
+  // The extra rows are pre-token protocols below the floor — with the
+  // watchlist rule's wrapped/bridge/CEX exclusion applied to the whole
+  // board, so a wrapped product of a token that already trades can never
+  // top the ranking on TVL alone. The watchlist rows pass the rule by
+  // construction (the snapshot's list was produced by it).
+  const excludedWrapped = preToken.filter((p) => !watch.has(p.slug) && isWrappedOrBridged(p)).length;
   const extra = preToken
-    .filter((p) => !watch.has(p.slug))
+    .filter((p) => !watch.has(p.slug) && !isWrappedOrBridged(p))
     .sort((a, b) => b.tvl_usd - a.tvl_usd)
     .slice(0, 160);
   const picked = [...watchRows, ...extra];
@@ -415,6 +465,7 @@ export function buildBoard(snap: Snapshot): ModelOut {
       global_ratio_median: +Math.exp(fit.globalLog).toFixed(3),
       comps_n: comps.length,
       global_token_rate: +rates.global.toFixed(3),
+      excluded_wrapped: excludedWrapped,
     },
     fitted: { global_log_ratio: +fit.globalLog.toFixed(3), by_category: byCat },
     comp_log_ratios: compLogRatios,
