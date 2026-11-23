@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Launch Radar — which pre-token protocol is worth farming next</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Token Launch Radar</h1>
+    <p class="sub">Which pre-token protocol is worth farming next — ranked by implied launch value, each with a costed farm plan.</p>
+  </div>
+  <div class="meta" id="meta">Snapshot —</div>
+</header>
+
+<section class="strip" id="strip" aria-label="Model validation">
+  <strong>Model tested, not asserted.</strong>
+  <span id="strip-text">Loading validation…</span>
+</section>
+
+<section class="toolbar">
+  <input id="q" type="search" placeholder="Search name or slug…" aria-label="Search">
+  <select id="cat" aria-label="Category"><option value="">All categories</option></select>
+  <select id="verdict" aria-label="Verdict">
+    <option value="">All verdicts</option>
+    <option>FARM</option><option>THIN</option><option>SKIP</option>
+  </select>
+  <label class="check"><input id="wl" type="checkbox"> Watchlist only</label>
+  <span class="count" id="count"></span>
+</section>
+
+<main>
+  <section id="detail" class="detail" hidden></section>
+
+  <table id="board">
+    <thead>
+      <tr>
+        <th data-sort="rank">#</th>
+        <th data-sort="name">Protocol</th>
+        <th data-sort="tvl_usd">TVL</th>
+        <th data-sort="change_7d">7d</th>
+        <th data-sort="implied_value_usd">Implied value</th>
+        <th data-sort="odds">Token odds</th>
+        <th data-sort="per_hour_usd">$/hour</th>
+        <th data-sort="net_usd">Net</th>
+        <th data-sort="verdict">Verdict</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+
+<footer>
+  <p>Implied value is this radar's own claim, fitted from the snapshot — never make.fun's. A $1,000 farm is assumed to capture 0.001% of launch value; time is valued at $15 an hour. A protocol is said to record no token, never that it has none. Model: shrinkage-trimmed category comps (k=5) with token odds — see 00-model-validation.md. Protocols whose token already trades are the training set, not the ranking.</p>
+</footer>
+
+<script src="../data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
